@@ -1,0 +1,113 @@
+<!--
+#
+# Copyright 2012 surhive
+# All rights reserved.
+#
+# This file is part of yarará.
+#
+# Yarará is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Yarará is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+-->
+<html>
+<head>
+<title>Test page for yarar&aacute;</title>
+  <style type="text/css">
+  body {
+    color: #111111;
+	font-family: Cantarell, Ubuntu, Helvetica;
+    background-color: #fafafa }
+  </style>
+
+  <script type="text/javascript" src="json2.js"></script>
+
+    <script type="text/javascript">
+		var hello_world = '["hello world!"]';
+        function plugin0()
+        {
+            return document.getElementById('plugin0');
+        }
+        plugin = plugin0;
+
+  		function addEvent(obj, name, func)
+        {
+            if (window.addEventListener) {
+                obj.addEventListener(name, func, false); 
+            } else {
+                obj.attachEvent("on"+name, func);
+            }
+        }
+        function load()
+        {
+            addEvent(plugin(), 'python_notify', function(x){
+                alert("OK: "+x)
+                //console.log(x)
+            });
+
+            addEvent(plugin(), 'python_error', function(x){
+                alert("Error: "+x)
+            });
+		}
+
+        function pluginLoaded() {
+            alert("Plugin loaded!");
+        }
+
+        function testEvent()
+        {
+            plugin().testEvent('test stuff');
+        }
+
+        function lanchota_init(){
+            var data = [];
+            instance_name = "lanchota";
+            plugin().call('autonomotorrent', instance_name+'=BTApp.__init__', "[]", 'async');
+        }
+
+    function lanchota_callback(){
+            sport = port.toString();
+            instance_name = "cd_monitor" + sport;
+            plugin().call('lachota_test', instance_name+'=CardMonitor.test_callback',
+            '["This is the result of the callback"]', 'async');
+    }
+    function lanchota_add(torrent_file){
+            //var sdata = JSON.stringify(torrent_file);
+            instance_name = "lanchota";
+            plugin().call('autonomotorrent',instance_name+'=BTApp.add_torrent', '["/tmp/lanchota.torrent"]', 'async');
+        }
+
+
+        function pluginValid()
+        {
+            alert(plugin().valid);
+        }
+    </script>
+</head>
+<body onload="load()">
+<object id="plugin0" type="application/x-yarara" width="1" height="1">
+</object>
+<h1>Test page for Lanchota</h1>
+<p>This page is for testing purposes only, but you can use it as a starting point for your application</p>
+
+
+<h2>Initialization</h2>
+<a href="#" onclick="javascript:pluginValid()">Check if plugin is valid</a> <br />
+<a href="#" onclick="javascript:plugin().yararad('start_zmq')">Start browser listener</a> <br />
+<a href="#" onclick="javascript:plugin().yararad('start_py')">Start python listener</a> <br />
+<a href="#" onclick="javascript:plugin().yararad('stop')">Stop everything (kill -9)</a> <br /> 
+  <h2>Async methods</h2>
+<a href="#" onclick="lanchota_init()">lanchota_init</a> <br />
+<a href="#" onclick="lanchota_add('/tmp/lanchota.torrent')">lanchota_add</a> <br />
+<a href="#" onclick="lanchota_callback()">lanchota_callback</a> <br />
+</body>
+</html>

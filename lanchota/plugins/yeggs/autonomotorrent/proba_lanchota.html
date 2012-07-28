@@ -1,0 +1,201 @@
+<!--
+#
+# Copyright 2012 surhive
+# All rights reserved.
+#
+# This file is part of yarará.
+#
+# Yarará is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Yarará is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+-->
+<html>
+<head>
+<title>Test page for yarar&aacute;</title>
+  <style type="text/css">
+  body {
+    color: #111111;
+	font-family: Cantarell, Ubuntu, Helvetica;
+    background-color: #d8da3d }
+  </style>
+
+  <script type="text/javascript" src="json2.js"></script>
+
+    <script type="text/javascript">
+		var hello_world = '["hello world!"]';
+        function plugin0()
+        {
+            return document.getElementById('plugin0');
+        }
+        plugin = plugin0;
+
+  		function addEvent(obj, name, func)
+        {
+            if (window.addEventListener) {
+                obj.addEventListener(name, func, false); 
+            } else {
+                obj.attachEvent("on"+name, func);
+            }
+        }
+        function load()
+        {
+            addEvent(plugin(), 'python_notify', function(x){
+                alert("OK: "+x)
+                //console.log(x)
+            });
+
+            addEvent(plugin(), 'python_error', function(x){
+                alert("Error: "+x)
+            });
+		}
+
+        function pluginLoaded() {
+            alert("Plugin loaded!");
+        }
+
+        function testEvent()
+        {
+            plugin().testEvent('test stuff');
+        }
+
+        function card_monitor_init(port){
+            var data = ["127.0.0.1", port];
+            sport = port.toString();
+            instance_name = "cd_monitor" + sport;
+            var sdata = JSON.stringify(data);
+            plugin().call('card_monitor_test', instance_name+'=CardMonitor.__init__', sdata, 'async');
+        }
+
+    function card_monitor_callback(port){
+            sport = port.toString();
+            instance_name = "cd_monitor" + sport;
+            plugin().call('card_monitor_test', instance_name+'=CardMonitor.test_callback',
+            '["This is the result of the callback"]', 'async');
+    }
+    function card_monitor_write(port){
+            var d = new Date();
+            var now_is = d.toTimeString();
+            var data = [now_is];
+            var sdata = JSON.stringify(data);
+            sport = port.toString();
+            instance_name = "cd_monitor" + sport;
+            plugin().call('card_monitor_test',instance_name+'=CardMonitor.test_write', sdata, 'async');
+        }
+
+        function print_data(printer_name){
+		var data_to_print;
+	        data_to_print = ['%PDF-1.1',
+
+	'1 0 obj',
+	'  << /Type /Catalog',
+	'     /Pages 2 0 R',
+	'  >>',
+	'endobj',
+'',
+'	2 0 obj',
+'	  << /Type /Pages',
+'	     /Kids [3 0 R]',
+'	     /Count 1',
+'	     /MediaBox [0 0 300 144]',
+'	  >>',
+'	endobj',
+'',
+'	3 0 obj',
+'	  <<  /Type /Page',
+'	      /Parent 2 0 R',
+'	      /Resources',
+'	       << /Font',
+'		   << /F1',
+'		       << /Type /Font',
+'			  /Subtype /Type1',
+'			  /BaseFont /Times-Roman',
+'		       >>',
+'		   >>',
+'	       >>',
+'	      /Contents [',
+'		<< /Length 105 >>',
+'		stream',
+'		  BT',
+'		    /F1 18 Tf',
+'		    0 0 Td',
+'		    (Hello world.) Tj',
+'		  ET',
+'		endstream ]',
+'	  >>',
+'	endobj',
+'',
+'	xref',
+'	0 4',
+'	0000000000 65535 f ',
+'	0000000019 00000 n ',
+'	0000000078 00000 n ',
+'	0000000179 00000 n ',
+'	trailer',
+'	  <<  /Root 1 0 R',
+'	      /Size 4',
+'	  >>',
+'	startxref',
+'	612',
+'	%%EOF'].join("\n");
+
+	data_to_print = JSON.stringify(data_to_print);
+	console.log(data_to_print);
+            var json_str = JSON.stringify([printer_name, data_to_print]);
+        plugin().call('spool','printer=print_data', json_str, 'sync');
+    }
+
+        function pluginValid()
+        {
+            alert(plugin().valid);
+        }
+    </script>
+</head>
+<body onload="load()">
+<object id="plugin0" type="application/x-yarara" width="1" height="1">
+</object>
+<h1>Test page for Yarar&aacute;</h1>
+<p>This page is for testing purposes only, but you can use it as a starting point for your application</p>
+
+<h2>Quick Start:</h2>
+<p align="justify">
+Yarar&aacute; comunicates with python by starting to separate zmq servers one, listening on port 5555 is on the browser side, and it listens for requests. After initializing this, Yarar&aacute; needs to start a separated python launcher, wich in turn will run a zmq server listening on port 6666.
+<br />
+When a python module or process is required to start, a message to port 6666 is sent by the plugin specifying wich module to start if it is a syncronous or asynchronous process and its parameters. The process is started and if it is an asynchronous one it will communicate through a callback and keep running until it ends, on the other hand, the synchronous processs will return a value. Both type of processes will call the callback. The callback will process the data and it will send a message to the zmq server listening on port 5555 (browser side), this zmq server will fire an event on the browser either on_python_notify or on_python_error.
+</p>
+
+
+<p><b>To get started with this example, follow this steps</b></p>
+
+<ol>
+    <li>Launch the zmq listener, it will start listening on port 5555 (if this port is busy it will continue trying with 5556 5557 etc)</li>
+    <li>Launch the python launcher service, it will start listening on port 6666 (if this port is busy it will continue trying with 6667 6668 etc)</li>
+</ol>
+
+
+<h2>Initialization</h2>
+<a href="#" onclick="javascript:pluginValid()">Check if plugin is valid</a> <br />
+<a href="#" onclick="javascript:plugin().yararad('start_zmq')">Start browser listener</a> <br />
+<a href="#" onclick="javascript:plugin().yararad('start_py')">Start python listener</a> <br />
+<a href="#" onclick="javascript:plugin().yararad('stop')">Stop everything (kill -9)</a> <br /> 
+  <h2>Async methods</h2>
+<a href="#" onclick="card_monitor_init(8013)">Launches a twisted echo server on port 8013 (try telnet localhost 8013)</a> <br />
+<a href="#" onclick="card_monitor_write(8013)">Executes test_write method of card_monitor_test wich writes a temporary file with current datetime</a> <br />
+<a href="#" onclick="card_monitor_callback(8013)">Executes a simple callback on card_monitor process (8013)</a> <br />
+<a href="#" onclick="card_monitor_init(8014)">Launches a twisted echo server on port 8014 (try telnet localhost 8014)</a> <br />
+<a href="#" onclick="card_monitor_write(8014)">Executes test_write method 2 of card_monitor_test wich writes a temporary file with current datetime</a> <br />
+
+  <h2>Sync methods</h2>
+<a href="#" onclick="javascript:plugin().call('calculator','result=plus','[4,5]', 'sync')">Call the plus method of calculator yegg</a> <br />
+<a href="#" onclick="print_data('PDF')">Send PDF stream to printer named PDF</a> <br />
+</body>
+</html>
